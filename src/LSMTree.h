@@ -13,7 +13,8 @@
 class LSMTree {
 public:
 
-  LSMTree(int, int, int, int, float);
+  // depth, fanout, runSize
+  LSMTree(int, int, int);
 
   void put(KEY_t, VAL_t);
   VAL_t* get(KEY_t);
@@ -30,6 +31,9 @@ private:
   // TODO: thread...
   // TODO: bf_bits...
   std::vector<Level> levels_;
+  int fanout_;
+  int depth_;
+  int runSize_;
 
 };
 

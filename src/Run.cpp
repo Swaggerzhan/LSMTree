@@ -8,19 +8,25 @@
 #include <sys/mman.h>
 #include <algorithm>
 
+// for debug
+#include <iostream>
+using std::cout;
+using std::endl;
+
 Run::Run(long max_size, float bf_bits_per_entry)
         : max_size(max_size)
         , cur_size(0)
-        , tmp_file("tmp_file_name")
         , mapping_(nullptr)
         , mapping_fd_(-1)
         , mapping_length_(0)
 {
   fence_pointers_.reserve( max_size / getpagesize() );
+  int rand = ::rand();
+  tmp_file = RUN_DIR + std::to_string(rand);
 }
 
 Run::~Run() {
-  assert( mapping_ != nullptr );
+  assert( mapping_ == nullptr );
   remove(tmp_file.c_str()); // ????
 }
 
@@ -70,7 +76,8 @@ long Run::file_size() {
 
 void Run::put(entry_t target) {
   assert( cur_size < max_size );
-  // TODO: set bloom filter
+
+  bloomFilter_.add(target.key);
 
   if ( cur_size % getpagesize() == 0 ) {
     fence_pointers_.push_back(target.key);
@@ -86,7 +93,7 @@ VAL_t* Run::get(KEY_t key) {
   vector<KEY_t>::iterator next_page;
   VAL_t* val = nullptr;
 
-  if (key < fence_pointers_[0] || key > max_key_) { // || !bloom_filter...
+  if (key < fence_pointers_[0] || key > max_key_ || !bloomFilter_.has(key)) { // || !bloom_filter...
     return nullptr; // nullptr
   }
 
@@ -94,17 +101,18 @@ VAL_t* Run::get(KEY_t key) {
   long page_index = (next_page - fence_pointers_.begin()) - 1;
 
   assert ( page_index >= 0 );
-
   map_read(getpagesize(), page_index * getpagesize()); // once we use disk
+  mapping_[2];
 
-  for (int i=0; i<getpagesize() / sizeof(entry_t); i++) {
+  for (int i=0; i <(getpagesize() / sizeof(entry_t)); i++) {
+    KEY_t tmp_key = mapping_[i].key;
     if ( mapping_[i].key == key ) {
+      cout << "find!" << endl;
       val = new VAL_t;
       *val = mapping_[i].val;
       break; // ?
     }
   }
-
   unmap();
   // ummap
   return val;

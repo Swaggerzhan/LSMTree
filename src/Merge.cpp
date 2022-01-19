@@ -51,3 +51,7 @@ entry_t MergeContext::next() {
   }
   return current.head();
 }
+
+bool MergeContext::done() {
+  return queue_.empty();
+}

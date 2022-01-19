@@ -9,6 +9,9 @@
 #include "types.h"
 #include <unistd.h>
 #include <string>
+#include "BloomFilter.h"
+
+#define RUN_DIR "/tmp/"
 
 using std::vector;
 using std::string;
@@ -60,7 +63,8 @@ private:
 
 
 private:
-  // TODO: bloom filter...
+
+  BloomFilter bloomFilter_;
   vector<KEY_t> fence_pointers_; // for fence pointer
   KEY_t max_key_;
 
@@ -68,9 +72,5 @@ private:
   entry_t* mapping_; // the address of mmap return value
   size_t mapping_length_;
 
-
-
 };
-
-
 #endif //LSMTREE_RUN_H

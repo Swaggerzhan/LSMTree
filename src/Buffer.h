@@ -13,7 +13,7 @@
 class Buffer {
 public:
 
-  Buffer(int max_size);
+  explicit Buffer(int max_size);
 
   ~Buffer() = default;
 

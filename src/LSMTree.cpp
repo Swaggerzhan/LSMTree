@@ -9,6 +9,24 @@
 using std::vector;
 
 
+// for debug
+#include <iostream>
+using std::cout;
+using std::endl;
+
+LSMTree::LSMTree(int depth, int fanout, int runSize)
+: depth_(depth)
+, buffer_(3)
+, fanout_(fanout)
+, runSize_(runSize)
+{
+  for (int i=0; i<depth; i++) {
+    levels_.emplace_back(fanout, runSize_);
+    runSize_ *= fanout_;
+  }
+}
+
+
 void LSMTree::merge_down(vector<Level>::iterator current) {
   assert( current >= levels_.begin());
   MergeContext mergeContext;
@@ -93,7 +111,7 @@ VAL_t* LSMTree::get(KEY_t key) {
     if ((run = get_run(run_index)) == nullptr) {
       return nullptr;
     }
-    if ( run->get(key) == nullptr ) {
+    if ( (val = run->get(key)) == nullptr ) {
       run_index ++;
       continue;
     }
